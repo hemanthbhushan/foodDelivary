@@ -16,7 +16,11 @@ contract FoodDelivery is ERC1155,Ownable,Pausable{
     uint256[] totalMinted = [0,0];
 
 
-constructor()ERC1155(""){}
+constructor()ERC1155(""){
+
+
+
+}
 
  
 
@@ -32,6 +36,9 @@ constructor()ERC1155(""){}
         address hotelDeposit; 
         uint256 hotelId; 
     }
+ struct HotelFoodItems{
+     string[] foodItems;
+ }   
 
  //here the nft id are stored for example when the new hotel gets registered the Nft of Id  1 is deposited to the user
  //simiarly to the user who orders gets the thanku nft which has the nft id of 2 and etc   
@@ -47,6 +54,7 @@ constructor()ERC1155(""){}
     mapping (string => NftIds) public idToNfts;
     mapping  (address=>mapping(address => bool)) public whitelisteManager;
     mapping (address=>mapping(string=>uint)) public hotelId;
+    mapping (uint=>HotelFoodItems) storeFoodItems;
 
     //when hotel gets registered the manager of the hotel get the Nft as the proof use in the future for the hotel registration the nftId will be 1
 
@@ -153,6 +161,22 @@ constructor()ERC1155(""){}
 
     function getNftIdPurpose() public view returns(NftIds[] memory){
         return getThePurposeOfNftIds;
+    }
+
+    //list the hotel items hotel wise
+
+    function listHotelFoodItems(string memory _hotelName,string[] memory _foodItems) external  {
+         string memory _purpose = "Hotel";
+         require(whitelisteManager[owner()][msg.sender] == true,"hotelManger need to get approval from the owner");
+         require( balanceOf(msg.sender, idToNfts[_purpose].nftId)>0,"the hotel manager is missing the hotel registration nft ");
+
+          uint256 getHotelId = hotelId[msg.sender][_hotelName];
+
+          storeFoodItems[getHotelId].foodItems = _foodItems;
+
+          
+
+
     }
 
   }
