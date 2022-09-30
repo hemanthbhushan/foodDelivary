@@ -16,11 +16,7 @@ contract FoodDelivery is ERC1155,Ownable,Pausable{
     uint256[] totalMinted = [0,0];
 
 
-constructor()ERC1155(""){
-
-
-
-}
+constructor()ERC1155(""){}
 
  
 
@@ -78,6 +74,28 @@ constructor()ERC1155(""){
         hotelId[msg.sender][hotelName] = Id; 
 
     }
+    function removeHotel(string memory _hotelName,address _hotelManager ) external  onlyOwner returns(uint256){
+        string memory _purpose = "Hotel";
+        require(whitelisteManager[msg.sender][_hotelManager] == true,"hotelManger need to get approval from the owner");
+        require( balanceOf(msg.sender, idToNfts[_purpose].nftId)>0,"the hotel manager is missing the hotel registration nft ");
+
+        uint256 getHotelId = hotelId[_hotelManager][_hotelName];
+        uint256 length = registeredHotels.length;
+         
+    
+        for(uint256 i=0;i< length;i++){
+            if(registeredHotels[i].hotelId==getHotelId){
+                _burn(_hotelManager,idToNfts[_purpose].nftId,1);
+                registeredHotels[i] = registeredHotels[length-1];
+                registeredHotels.pop();
+                idToNfts[_purpose].totalSupply--;
+                delete hotelId[_hotelManager][_hotelName]; 
+                return getHotelId;
+
+            }
+        }
+}
+
 
       function changeHotelManager(address _newManager,string memory _hotelName) external returns(address ){
           string memory _purpose = "Hotel";
@@ -106,10 +124,7 @@ constructor()ERC1155(""){
                //new manager should get the approval from the owner
  } 
 
- function removeHotel() external  onlyOwner{
-     
- }
-
+ 
 
 
     function hotelManagerGetApproveFromOwner(address hotelManager,bool check) external  onlyOwner returns(bool){
@@ -123,9 +138,9 @@ constructor()ERC1155(""){
     }
 
 
-    function addNewNftType(string memory _purpose, uint256 _totalSupply) external onlyOwner returns(uint256 newNftId ){
+    function addNewNftType(string memory _purpose, uint256 _totalSupply) external onlyOwner returns(uint256 _idNo ){
         nftIdCount.increment();
-        uint _idNo = nftIdCount.current();
+         _idNo = nftIdCount.current();
     
 
           idToNfts[_purpose] = NftIds({
